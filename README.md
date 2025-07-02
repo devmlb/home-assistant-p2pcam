@@ -4,7 +4,7 @@ Home assistant component to retrieve camera images from cameras using the p2p pr
 First of all i just wrote the original connection and retrieval process has been made by [Jheyman](https://github.com/jheyman/) in his [videosurveillance script](https://github.com/jheyman/videosurveillance/).
 I rewrote it to run as a class instead of an application and added the home assitant code to it.
 
-So i had this [chinese camera](https://nl.aliexpress.com/item/Phone-monitor-P2P-Free-DDNS-Ontop-RT8633-HD-1-4-CMOS-1-0MP-Network-IP-Camera/990524792.html) laying around, it had this feature that you could access it from outside your home without the need for port forwarding. However after a couple of years this brand dissappeared and with it their services so i couldn't connect to it outside of my own network using [this app](https://play.google.com/store/apps/details?id=x.p2p.cam).
+So i had this [chinese camera](https://usb.brando.com/ontop-p2p-rt8633-hd-high-density-night-vision-wireless-ipcam_p03365c43d15.html) laying around, it had this feature that you could access it from outside your home without the need for port forwarding. However after a couple of years this brand dissappeared and with it their services so i couldn't connect to it outside of my own network using [this app](https://plug-play.en.aptoide.com/app).
 
 Which made owning this camera quite useless. But i had since gotten into Home Asssistant and got the idea to get it working in there since my instance ran locally so it should be able to access the camera.
 
