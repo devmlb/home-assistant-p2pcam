@@ -112,21 +112,6 @@ class P2PCamModule():
         except KeyboardInterrupt:
             raise
 
-    def start(self):
-        try:
-            self.initialize()
-            while True:
-                self.loop()
-        except KeyboardInterrupt:
-            print(("[CONTROL] manually interrupted, %s" % time.strftime("%Y-%m-%d @ %H:%M:%S")))
-        except NameError as n:
-            print(("[ERROR] NameError %s" % n))
-        except:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
-            del exc_traceback
-        print("[CONTROL] exiting surveillance")
-
     def initialize(self):
         try:
             self.global_loop_iteration += 1
@@ -497,18 +482,3 @@ class P2PCamModule():
                 self.base_index = (self.base_index + 2) % 20
             packet = self.MESSAGE_CONTINUE_BEGIN + tmp + self.MESSAGE_CONTINUE_END
             self.sendContinuePacket(packet)
-
-    def loop(self):
-        try:
-            while (self.socket_error == False):
-                self.retrieveImage()
-        except RestartException as resExc:
-            if self.debug:
-                print(("[ERROR] restarting global loop in %d seconds due to exception: %s" % (resExc.delay, resExc.msg)))
-                pass
-            # Let the camera breathe a bit before trying again
-            time.sleep(resExc.delay)
-            pass
-        except KeyboardInterrupt:
-            raise
-        # end of global loop
