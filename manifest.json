@@ -4,5 +4,6 @@
   "documentation": "https://github.com/devmlb/home-assistant-p2pcam",
   "requirements": [],
   "dependencies": [],
-  "codeowners": []
+  "codeowners": [],
+  "version": "1.0.0"
 }
