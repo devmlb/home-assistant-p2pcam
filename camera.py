@@ -25,7 +25,7 @@ async def async_setup_platform(hass, config, async_add_entities,
 class P2PCam(Camera):
     def __init__(self, hass, config):
         super().__init__()
-        from utils import P2PCamModule
+        from .utils import P2PCamModule
 
         self._name = config.get(CONF_NAME)
         self._host_ip = config.get(CONF_HOST)
