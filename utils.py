@@ -64,7 +64,7 @@ class P2PCamModule():
              0xdd, 0xd0, 0xdb, 0xd1, 0xd1, 0xd2, 0x8f, 0x9d, 0xa7, 0xd8, 0xd4, 0x87, 0x8c, 0x9d, 0xc7, 0xd8, 0xd9, 0xdb,
              0xdc, 0xd2, 0xaf, 0xad, 0xd8, 0xd4, 0xd8, 0xd9, 0xdb, 0xdc, 0xd2])
         # Allowed byte length received after MESSAGE_119, since not all cameras send the same byte length in return.
-        self.allowedPacketLengths = range(300, 400) # according to the original list and my own device, the size of these packets is between 300 and 400
+        self.allowedPacketLengths = range(300, 400)  # according to the original list and my own device, the size of these packets is between 300 and 400
         # The continue packet is composed of a first part where the 0xff below get dynamically replaced by the appropriate value at runtime, and a second part that is invariable
         self.MESSAGE_CONTINUE_BEGIN = bytearray(
             [0x00, 0x00, 0xff, 0x02, 0x12, 0x00, 0x00, 0xff, 0x00, 0x01, 0x00, 0x00, 0x00, 0xa0, 0xaa, 0xa4, 0xad, 0xd4,
@@ -86,9 +86,6 @@ class P2PCamModule():
         self.msg = bytearray()
         self.timeout_iteration = 0
         self.hasInitialised = False
-
-    def byteToInt(self, byteVal):
-        return byteVal
 
     def sendControlPacket(self, packet):
         if self.debug:
@@ -275,20 +272,19 @@ class P2PCamModule():
                     if nbbytes >= 17:
                         # First frame / Start of Image : get rid of the 15 bytes header
                         if (chunk[15] == 255) and (chunk[16] == 216):
-                            self.lastFragmentId = self.byteToInt(chunk[0])
+                            self.lastFragmentId = chunk[0]
                             self.msg += chunk[15:]
                         # additional data fragment : just drop the 4 bytes header and concatenate to already received data
                         else:
                             # Check for sequence number continuity
-                            if ((self.byteToInt(chunk[0]) == self.lastFragmentId + 1) or (
-                                    self.byteToInt(chunk[0]) == 0) and (self.lastFragmentId == 255)):
+                            if ((chunk[0] == self.lastFragmentId + 1) or (chunk[0] == 0) and (self.lastFragmentId == 255)):
                                 self.msg += chunk[4:]
                             # If we lost a fragment, no point in continuing accumulating data for this frame so restart another data grab
                             else:
                                 self.msg = b''
                                 self.fragments_received = 0
                             # Keep track of sequence number
-                            self.lastFragmentId = self.byteToInt(chunk[0])
+                            self.lastFragmentId = chunk[0]
                     # If we received an unexpected packet in the middle of the image data, something is wrong : just drop the ongoing image capture & restart
                     else:
                         self.msg = b''
