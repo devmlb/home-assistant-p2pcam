@@ -1,4 +1,3 @@
-import numpy as np
 import sys
 import traceback
 import socket
@@ -17,9 +16,6 @@ class RestartException(Exception):
 
 class P2PCamModule():
     def __init__(self, host_ip, target_ip):
-        self.horizontal_flip = False
-        self.vertical_flip = False
-        self.addTimeStamp = False
         self.debug = False
 
         self.global_loop_iteration = 0
@@ -68,7 +64,7 @@ class P2PCamModule():
              0xdd, 0xd0, 0xdb, 0xd1, 0xd1, 0xd2, 0x8f, 0x9d, 0xa7, 0xd8, 0xd4, 0x87, 0x8c, 0x9d, 0xc7, 0xd8, 0xd9, 0xdb,
              0xdc, 0xd2, 0xaf, 0xad, 0xd8, 0xd4, 0xd8, 0xd9, 0xdb, 0xdc, 0xd2])
         # Allowed byte length received after MESSAGE_119, since not all cameras send the same byte length in return.
-        self.allowedPacketLengths = [361, 368, 334, 372]
+        self.allowedPacketLengths = range(300, 400) # according to the original list and my own device, the size of these packets is between 300 and 400
         # The continue packet is composed of a first part where the 0xff below get dynamically replaced by the appropriate value at runtime, and a second part that is invariable
         self.MESSAGE_CONTINUE_BEGIN = bytearray(
             [0x00, 0x00, 0xff, 0x02, 0x12, 0x00, 0x00, 0xff, 0x00, 0x01, 0x00, 0x00, 0x00, 0xa0, 0xaa, 0xa4, 0xad, 0xd4,
@@ -133,12 +129,6 @@ class P2PCamModule():
 
     def initialize(self):
         try:
-            if self.horizontal_flip and self.vertical_flip:
-                self.flipcode = -1
-            elif self.horizontal_flip:
-                self.flipcode = 0
-            elif self.vertical_flip:
-                self.flipcode = 1
             self.global_loop_iteration += 1
             if self.debug:
                 print("*****************************************************************")
@@ -364,14 +354,6 @@ class P2PCamModule():
                     self.msg = b''
                     self.fragments_received = 0
                     self.manageContinuePackets()
-                    # if hasattr(self, 'flipcode') or self.addTimeStamp:
-                    #     import cv2, numpy
-                    #     image = cv2.imdecode(numpy.fromstring(self.jpeg, dtype=numpy.uint8),cv2.IMREAD_COLOR)
-                    #     if hasattr(self, 'flipcode'):
-                    #         cv2.flip(image, self.flipcode, image)
-                    #     if self.addTimeStamp:
-                    #         cv2.putText(image, time.strftime("%Y-%m-%d  %H:%M:%S"), (10, 460), cv2.FONT_HERSHEY_SIMPLEX, 0.85, (0, 0, 255), 2, 8)
-                    #     return cv2.imencode('.jpg', image)[1].tostring()
                     return self.jpeg
             if self.socket_error:
                 self.initialize()
