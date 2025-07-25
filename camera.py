@@ -25,15 +25,15 @@ async def async_setup_platform(hass, config, async_add_entities,
 class P2PCam(Camera):
     def __init__(self, hass, config):
         super().__init__()
-        import p2pcam as p2pcam_req
+        from utils import P2PCamModule
 
         self._name = config.get(CONF_NAME)
         self._host_ip = config.get(CONF_HOST)
         self._target_ip = config.get(CONF_IP_ADDRESS)
 
-        self.camera = p2pcam_req.P2PCam(self._host_ip, self._target_ip)
+        self.camera = P2PCamModule(self._host_ip, self._target_ip)
 
-    async def async_camera_image(self):
+    async def async_camera_image(self, width=0, height=0):
         return self.camera.retrieveImage()
 
     @property
