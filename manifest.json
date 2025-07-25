@@ -1,9 +1,11 @@
 {
   "domain": "p2pcam",
-  "name": "p2pcam",
+  "name": "P2PCam",
+  "integration_type": "device",
   "documentation": "https://github.com/devmlb/home-assistant-p2pcam",
+  "issue_tracker": "https://github.com/devmlb/home-assistant-p2pcam/issues",
   "requirements": [],
   "dependencies": [],
-  "codeowners": [],
+  "codeowners": ["@jheyman", "@indykoning", "@devmlb"],
   "version": "1.0.0"
 }
