@@ -1,11 +1,17 @@
 {
-  "domain": "p2pcam",
-  "name": "P2PCam",
-  "integration_type": "device",
-  "documentation": "https://github.com/devmlb/home-assistant-p2pcam",
-  "issue_tracker": "https://github.com/devmlb/home-assistant-p2pcam/issues",
-  "requirements": [],
-  "dependencies": [],
-  "codeowners": ["@jheyman", "@indykoning", "@devmlb"],
-  "version": "1.0.0"
+    "domain": "p2pcam",
+    "name": "P2PCam",
+    "integration_type": "device",
+    "documentation": "https://github.com/indykoning/home-assistant-p2pcam",
+    "issue_tracker": "https://github.com/indykoning/home-assistant-p2pcam/issues",
+    "requirements": [
+        "p2pcam@git+https://github.com/devmlb/PyPI_p2pcam.git@master"
+    ],
+    "dependencies": [],
+    "codeowners": [
+        "@indykoning",
+        "@devmlb"
+    ],
+    "version": "2.0.0",
+    "config_flow": true
 }

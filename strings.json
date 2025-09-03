@@ -1,0 +1,26 @@
+{
+    "title": "P2PCam",
+    "config": {
+        "flow_title": "P2PCam configuration",
+        "step": {
+            "user": {
+                "data": {
+                    "name": "Camera name",
+                    "host_ip": "Host IP",
+                    "camera_ip": "Camera IP"
+                }
+            }
+        }
+    },
+    "options": {
+        "flow_title": "P2PCam configuration",
+        "step": {
+            "init": {
+                "data": {
+                    "host_ip": "Host IP",
+                    "camera_ip": "Camera IP"
+                }
+            }
+        }
+    }
+}
