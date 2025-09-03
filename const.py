@@ -12,4 +12,4 @@ CONF_CAMERA_IP = "camera_ip"
 
 ATTR_HORIZONTAL = "horizontal_flip"
 ATTR_VERTICAL = "vertical_flip"
-ATTR_TIMESTAMP = "timestamp"
+ATTR_TIMESTAMP = "add_timestamp"
