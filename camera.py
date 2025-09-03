@@ -54,16 +54,6 @@ class P2PCam(Camera):
         return await self.hass.async_add_executor_job(self.camera.retrieveImage)
 
     @property
-    def name(self):
-        """Retourne le nom de la caméra."""
-        return self._attr_name
-
-    @property
-    def unique_id(self):
-        """Retourne l'identifiant unique de la caméra."""
-        return self._attr_unique_id
-
-    @property
     def device_info(self) -> DeviceInfo:
         """Return the device info."""
         return DeviceInfo(

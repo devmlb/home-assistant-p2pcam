@@ -3,7 +3,7 @@
 import logging
 
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult, OptionsFlow, ConfigEntry
-from .const import DOMAIN, CONF_NAME
+from .const import DOMAIN, CONF_NAME, CONF_HORIZONTAL_FLIP, CONF_VERTICAL_FLIP
 
 import voluptuous as vol
 
@@ -69,7 +69,11 @@ class P2PCamConfigFlow(ConfigFlow, domain=DOMAIN):
 
         self._user_inputs.update(user_input)
 
-        return self.async_create_entry(title=self._user_inputs["name"], data=self._user_inputs)
+        # Defaults settings
+        self._user_inputs[CONF_HORIZONTAL_FLIP] = False
+        self._user_inputs[CONF_VERTICAL_FLIP] = False
+
+        return self.async_create_entry(title=self._user_inputs[CONF_NAME], data=self._user_inputs)
 
 
 class P2PCamOptionsFlow(OptionsFlow):
