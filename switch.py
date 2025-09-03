@@ -1,6 +1,6 @@
 """Implements the P2PCam settings components"""
 
-from .const import DOMAIN, ATTR_HORIZONTAL, ATTR_VERTICAL, ATTR_TIMESTAMP
+from .const import DOMAIN, ATTR_HORIZONTAL, ATTR_VERTICAL, ATTR_TIMESTAMP, CONF_NAME
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers.restore_state import RestoreEntity
 import logging
@@ -15,7 +15,7 @@ from homeassistant.helpers.entity import DeviceInfo
 
 # from .const import CONF_NAME, CONF_DEVICE_ID, CONF_CAM_IP, CONF_HOST_IP, DOMAIN, CONF_HORIZONTAL_FLIP
 
-# _LOGGER = logging.getLogger(__name__)
+_LOGGER = logging.getLogger(__name__)
 
 
 # async def async_setup_entry(hass: HomeAssistant, config: ConfigEntry, async_add_entities: AddEntitiesCallback):
@@ -53,14 +53,15 @@ from homeassistant.helpers.entity import DeviceInfo
 
 
 class P2PCamSwitch(SwitchEntity, RestoreEntity):
-    def __init__(self, id, camera, attr, name_suffix: str):
+    def __init__(self, cam_id, cam_name, camera, attr, setting_name: str):
         self._camera = camera
         self._attr = attr
-        self._attr_name = f"{camera.name} {name_suffix}"
+        self._attr_name = setting_name
         self._state = False
-        self._device_id = id
-        self._attr_unique_id = f"{self._device_id}_{name_suffix.lower().replace(" ", "_")}"
+        self._device_id = cam_name
+        self._attr_unique_id = f"{cam_id}_{setting_name.lower().replace(" ", "_")}"
         self._attr_has_entity_name = True
+        self._cam_id = cam_id
 
     @property
     def is_on(self):
@@ -70,10 +71,10 @@ class P2PCamSwitch(SwitchEntity, RestoreEntity):
     def device_info(self) -> DeviceInfo:
         """Return the device info."""
         return DeviceInfo(
-            identifiers={(DOMAIN, self._device_id)},
+            identifiers={(DOMAIN, self._cam_id)},
             name=self._device_id,
-            manufacturer="P2PCam",
-            model=DOMAIN,
+            manufacturer=DOMAIN,
+            model=self._device_id,
         )
 
     async def async_turn_on(self, **kwargs):
@@ -104,8 +105,10 @@ async def async_setup_entry(hass, entry, async_add_entities):
     if not camera_entity:
         return
 
+    data = hass.data[DOMAIN][entry.entry_id]
+
     async_add_entities([
-        P2PCamSwitch(entry.entry_id, camera_entity, ATTR_HORIZONTAL, "Flip Horizontally"),
-        P2PCamSwitch(entry.entry_id, camera_entity, ATTR_VERTICAL, "Flip Vertically"),
-        P2PCamSwitch(entry.entry_id, camera_entity, ATTR_TIMESTAMP, "Add Timestamp"),
+        P2PCamSwitch(entry.entry_id, data[CONF_NAME], camera_entity, ATTR_HORIZONTAL, "Flip Horizontally"),
+        P2PCamSwitch(entry.entry_id, data[CONF_NAME], camera_entity, ATTR_VERTICAL, "Flip Vertically"),
+        P2PCamSwitch(entry.entry_id, data[CONF_NAME], camera_entity, ATTR_TIMESTAMP, "Add Timestamp"),
     ])
