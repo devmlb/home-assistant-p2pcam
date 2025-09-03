@@ -5,8 +5,7 @@
     "documentation": "https://github.com/indykoning/home-assistant-p2pcam",
     "issue_tracker": "https://github.com/indykoning/home-assistant-p2pcam/issues",
     "requirements": [
-        "p2pcam@git+https://github.com/devmlb/PyPI_p2pcam.git@master",
-        "pillow==11.0.0"
+        "p2pcam@git+https://github.com/devmlb/PyPI_p2pcam.git@master"
     ],
     "dependencies": [],
     "codeowners": [
