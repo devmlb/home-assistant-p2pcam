@@ -8,6 +8,10 @@
                     "name": "Camera name",
                     "host_ip": "Host IP",
                     "camera_ip": "Camera IP"
+                },
+                "data_description": {
+                    "host_ip": "The IP address of the machine running Home Assistant",
+                    "camera_ip": "The IP address of the camera"
                 }
             }
         }
@@ -19,6 +23,10 @@
                 "data": {
                     "host_ip": "Host IP",
                     "camera_ip": "Camera IP"
+                },
+                "data_description": {
+                    "host_ip": "The IP address of the machine running Home Assistant",
+                    "camera_ip": "The IP address of the camera"
                 }
             }
         }
