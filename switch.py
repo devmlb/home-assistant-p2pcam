@@ -23,14 +23,15 @@ class P2PCamSwitch(SwitchEntity, RestoreEntity):
         cam_name: str,
         camera: P2PCamera,
         attr: str,
-        setting_name: str
+        setting_name: str,
+        setting_icon: str
     ) -> None:
         # Home Assistant attributes
         self._attr_has_entity_name = True
         self._attr_name = setting_name
         self._device_id = cam_name
         self._attr_unique_id = f"{cam_id}_{setting_name.lower().replace(" ", "_")}"
-        # self._attr_icon = "mdi:video"
+        self._attr_icon = setting_icon
         self._state = False
         # Custom attributes
         self._cam = camera
@@ -98,7 +99,7 @@ async def async_setup_entry(
 
     # Add each setting entity
     async_add_entities([
-        P2PCamSwitch(entry.entry_id, data[CONF_NAME], camera_entity, ATTR_HORIZONTAL, "Flip Horizontally"),
-        P2PCamSwitch(entry.entry_id, data[CONF_NAME], camera_entity, ATTR_VERTICAL, "Flip Vertically"),
-        P2PCamSwitch(entry.entry_id, data[CONF_NAME], camera_entity, ATTR_TIMESTAMP, "Add Timestamp"),
+        P2PCamSwitch(entry.entry_id, data[CONF_NAME], camera_entity, ATTR_HORIZONTAL, "Flip Horizontally", "mdi:flip-horizontal"),
+        P2PCamSwitch(entry.entry_id, data[CONF_NAME], camera_entity, ATTR_VERTICAL, "Flip Vertically", "mdi:flip-vertical"),
+        P2PCamSwitch(entry.entry_id, data[CONF_NAME], camera_entity, ATTR_TIMESTAMP, "Add Timestamp", "mdi:clock-plus-outline"),
     ])
