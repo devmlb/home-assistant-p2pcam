@@ -45,12 +45,7 @@ class P2PCamera(Camera):
             model=self._device_id,
         )
 
-    async def async_camera_image(self, width=None, height=None) -> bytes | None:
-        """Return an image taken from the camera"""
-
-        return await self.hass.async_add_executor_job(self._get_image)
-
-    def _get_image(self) -> bytes | None:
+    def camera_image(self, width=None, height=None) -> bytes | None:
         """Return an image retrieved by the P2PCam module"""
 
         # Set some settings before taking the picture
@@ -58,7 +53,10 @@ class P2PCamera(Camera):
         self._cam.vertical_flip = self._attrs[ATTR_VERTICAL]
         self._cam.add_timestamp = self._attrs[ATTR_TIMESTAMP]
 
-        return self._cam.retrieveImage()
+        try:
+            return self._cam.retrieveImage()
+        except Exception as e:
+            _LOGGER.error("Cannot retrieve the video stream from the camera:", e)
 
 
 async def async_setup_entry(
