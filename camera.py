@@ -40,6 +40,7 @@ class P2PCamera(Camera):
         self._latest_image = None
         self._image_lock = threading.Lock()
         self._stop_thread = False
+        self._attr_available = True
         self._thread = threading.Thread(target=self._update_image_loop, daemon=True)
         self._thread.start()
 
@@ -60,26 +61,29 @@ class P2PCamera(Camera):
         while not self._stop_thread:
             try:
                 self._client = p2pcam.LanVideoClient(self._ip)
-                for frame in self._client.stream():
+                for frame in self._client.stream(timeout=5):
                     if self._stop_thread:
                         break
+                    
+                    if not self._attr_available:
+                        self._attr_available = True
+                        self.schedule_update_ha_state()
                     
                     with self._image_lock:
                         self._latest_image = frame
                 
                 if not self._stop_thread:
-                    time.sleep(1)
-            except Exception as e:
-                _LOGGER.error("Cannot retrieve the video stream from the camera: %s", e)
-                if not self._stop_thread:
-                    time.sleep(5)
+                    # Timeout reached, let the camera breathe a little 
+                    # before trying to reconnect
+                    self._attr_available = False
+                    self.schedule_update_ha_state()
+                    time.sleep(15)
             finally:
                 if self._client:
                     try:
                         self._client.close()
-                    except Exception:
-                        pass
-                    self._client = None
+                    finally:
+                        self._client = None
 
     def camera_image(self, width=None, height=None) -> bytes | None:
         """Return the latest available image from the camera"""
