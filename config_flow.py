@@ -80,7 +80,6 @@ class P2PCamOptionsFlow(OptionsFlow):
 
 class P2PCamConfigFlow(ConfigFlow, domain=DOMAIN):
     VERSION = 1
-    # Initialize an empty dict to store user inputs
     _user_inputs: dict = {}
     _discovered_devices: dict = {}
 
@@ -90,44 +89,56 @@ class P2PCamConfigFlow(ConfigFlow, domain=DOMAIN):
         return P2PCamOptionsFlow(config_entry)
 
     async def async_step_user(self, user_input: dict | None = None) -> ConfigFlowResult:
-        """Handle the 'user' step of the config flow"""
+        """First screen: choose between LAN search or manual config"""
+
+        schema = vol.Schema({
+            vol.Required("mode"): SelectSelector(
+                SelectSelectorConfig(
+                    options=["lan", "manual"],
+                    mode=SelectSelectorMode.LIST,
+                    translation_key="p2pcam_mode"
+                )
+            )
+        })
 
         if user_input is None:
+            return self.async_show_form(step_id="user", data_schema=schema)
+
+        if user_input["mode"] == "manual":
+            return await self.async_step_manual()
+
+        return await self.async_step_discovery()
+
+    async def async_step_discovery(self, user_input: dict | None = None) -> ConfigFlowResult:
+        """Search LAN for cameras, then let the user pick one"""
+
+        if user_input is None:
+            # Run the scan
             scanner = p2pcam.LanScanner()
             devices = await self.hass.async_add_executor_job(scanner.refresh, 6)
-            
+
             self._discovered_devices = {dev.ip: dev.device_id for dev in devices}
 
             if not self._discovered_devices:
                 return await self.async_step_manual()
 
             options = [
-                SelectOptionDict(value=dev.ip, label=dev.device_id) 
-                for dev in devices
+                SelectOptionDict(value=ip, label=name)
+                for ip, name in self._discovered_devices.items()
             ]
-            options.append(SelectOptionDict(value="manual"))
-            
             schema = vol.Schema({
                 vol.Required("device"): SelectSelector(
                     SelectSelectorConfig(
                         options=options,
-                        mode=SelectSelectorMode.DROPDOWN,
-                        translation_key="p2pcam_device"
+                        mode=SelectSelectorMode.LIST,
                     )
                 )
             })
-            return self.async_show_form(step_id="user", data_schema=schema)
-
-        if user_input["device"] == "manual":
-            return await self.async_step_manual()
+            return self.async_show_form(step_id="discovery", data_schema=schema)
 
         ip = user_input["device"]
         name = self._discovered_devices[ip]
-        self._user_inputs = {
-            "name": name,
-            "camera_ip": ip
-        }
-        return self.async_create_entry(title=self._user_inputs["name"], data=self._user_inputs)
+        return self.async_create_entry(title=name, data={"name": name, "camera_ip": ip})
 
     async def async_step_manual(self, user_input: dict | None = None) -> ConfigFlowResult:
         """Handle manual IP entry"""

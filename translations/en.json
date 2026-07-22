@@ -4,13 +4,19 @@
         "flow_title": "P2PCam configuration",
         "step": {
             "user": {
-                "title": "Select a Camera",
+                "title": "Add a P2PCam device",
                 "data": {
-                    "device": "Camera"
+                    "mode": "Setup method"
+                }
+            },
+            "discovery": {
+                "title": "Select a camera",
+                "data": {
+                    "device": "Discovered devices"
                 }
             },
             "manual": {
-                "title": "Manual Configuration",
+                "title": "Manual configuration",
                 "data": {
                     "name": "Camera name",
                     "camera_ip": "Camera IP"
@@ -35,9 +41,10 @@
         }
     },
     "selector": {
-        "p2pcam_device": {
+        "p2pcam_mode": {
             "options": {
-                "manual": "Enter manually"
+                "lan": "Search on LAN",
+                "manual": "Manual config"
             }
         }
     }

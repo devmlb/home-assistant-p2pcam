@@ -4,9 +4,15 @@
         "flow_title": "Configuration de P2PCam",
         "step": {
             "user": {
+                "title": "Ajouter un appareil P2PCam",
+                "data": {
+                    "mode": "Méthode de configuration"
+                }
+            },
+            "discovery": {
                 "title": "Sélectionner une caméra",
                 "data": {
-                    "device": "Caméra"
+                    "device": "Appareils détectés"
                 }
             },
             "manual": {
@@ -35,9 +41,10 @@
         }
     },
     "selector": {
-        "p2pcam_device": {
+        "p2pcam_mode": {
             "options": {
-                "manual": "Saisir manuellement"
+                "lan": "Rechercher sur le réseau local",
+                "manual": "Configuration manuelle"
             }
         }
     }
