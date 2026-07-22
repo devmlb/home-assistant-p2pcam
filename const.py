@@ -5,7 +5,6 @@ from homeassistant.const import Platform
 DOMAIN = "p2pcam"
 PLATFORMS: list[Platform] = [Platform.CAMERA, Platform.SWITCH]
 
-CONF_HOST_IP = "host_ip"
 CONF_CAMERA_IP = "camera_ip"
 
 ATTR_HORIZONTAL = "horizontal_flip"

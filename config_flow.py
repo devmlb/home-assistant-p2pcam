@@ -8,6 +8,7 @@ import copy
 from collections.abc import Mapping
 import voluptuous as vol
 import logging
+import p2pcam
 from .const import DOMAIN
 
 
@@ -59,30 +60,20 @@ class P2PCamOptionsFlow(OptionsFlow):
     async def async_step_init(self, user_input: dict | None = None) -> ConfigFlowResult:
         """Handle the 'init' step of the config flow"""
 
-        # This method is called twice:
-        # - once without data
-        # - a second time with the data entered by the user
-
         # Option data schema
         option_form = vol.Schema({
-            vol.Required("host_ip"): str,
             vol.Required("camera_ip"): str
         })
 
-        # 1st call: no inputs, so we display the form
         if user_input is None:
             return self.async_show_form(
                 step_id="init",
-                # Add the current user inputs as suggested values to the form
                 data_schema=add_suggested_values_to_schema(
                     data_schema=option_form, suggested_values=self._user_inputs
                 ),
             )
 
-        # 2nd call: we store the user inputs
         self._user_inputs.update(user_input)
-
-        # Call the final step to save the changes
         return await self.async_end()
 
 
@@ -90,6 +81,7 @@ class P2PCamConfigFlow(ConfigFlow, domain=DOMAIN):
     VERSION = 1
     # Initialize an empty dict to store user inputs
     _user_inputs: dict = {}
+    _discovered_devices: dict = {}
 
     @staticmethod
     def async_get_options_flow(config_entry: ConfigEntry) -> P2PCamOptionsFlow:
@@ -99,23 +91,47 @@ class P2PCamConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input: dict | None = None) -> ConfigFlowResult:
         """Handle the 'user' step of the config flow"""
 
-        # This method is called twice:
-        # - once without data
-        # - a second time with the data entered by the user
+        if user_input is None:
+            scanner = p2pcam.LanScanner()
+            devices = await self.hass.async_add_executor_job(scanner.refresh, timeout=10)
+            
+            self._discovered_devices = {
+                dev.ip: f"{dev.device_id} ({dev.ip})" 
+                for dev in devices if dev.online
+            }
 
-        # Configuration data schema
+            if not self._discovered_devices:
+                return await self.async_step_manual()
+
+            devices_with_manual = self._discovered_devices.copy()
+            devices_with_manual["manual"] = "Enter manually"
+            
+            schema = vol.Schema({
+                vol.Required("device"): vol.In(devices_with_manual)
+            })
+            return self.async_show_form(step_id="user", data_schema=schema)
+
+        if user_input["device"] == "manual":
+            return await self.async_step_manual()
+
+        ip = user_input["device"]
+        name = self._discovered_devices[ip]
+        self._user_inputs = {
+            "name": name,
+            "camera_ip": ip
+        }
+        return self.async_create_entry(title=self._user_inputs["name"], data=self._user_inputs)
+
+    async def async_step_manual(self, user_input: dict | None = None) -> ConfigFlowResult:
+        """Handle manual IP entry"""
+
         user_form = vol.Schema({
             vol.Required("name"): str,
-            vol.Required("host_ip"): str,
             vol.Required("camera_ip"): str
         })
 
-        # 1st call: no inputs, so we display the form
         if user_input is None:
-            return self.async_show_form(step_id="user", data_schema=user_form)
+            return self.async_show_form(step_id="manual", data_schema=user_form)
 
-        # 2nd call: we store the user inputs
         self._user_inputs.update(user_input)
-
-        # Entry creation
-        return self.async_create_entry(title=self._user_inputs[CONF_NAME], data=self._user_inputs)
+        return self.async_create_entry(title=self._user_inputs["name"], data=self._user_inputs)
