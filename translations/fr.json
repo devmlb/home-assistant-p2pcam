@@ -22,12 +22,12 @@
                     "camera_ip": "IP de la caméra"
                 },
                 "data_description": {
-                    "camera_ip": "L'adresse IP de la caméra sur votre réseau local"
+                    "camera_ip": "L'adresse IP de la caméra sur le réseau local"
                 }
             }
         },
         "error": {
-            "already_configured": "Une caméra avec cette adresse IP est déjà configurée."
+            "already_configured": "Une caméra avec cette adresse IP est déjà configurée"
         }
     },
     "options": {
@@ -38,7 +38,7 @@
                     "camera_ip": "IP de la caméra"
                 },
                 "data_description": {
-                    "camera_ip": "L'adresse IP de la caméra sur votre réseau local"
+                    "camera_ip": "L'adresse IP de la caméra sur le réseau local"
                 }
             }
         }
