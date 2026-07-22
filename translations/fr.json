@@ -25,6 +25,9 @@
                     "camera_ip": "L'adresse IP de la caméra sur votre réseau local"
                 }
             }
+        },
+        "error": {
+            "already_configured": "Une caméra avec cette adresse IP est déjà configurée."
         }
     },
     "options": {

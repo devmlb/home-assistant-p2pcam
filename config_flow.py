@@ -83,6 +83,14 @@ class P2PCamConfigFlow(ConfigFlow, domain=DOMAIN):
     _user_inputs: dict = {}
     _discovered_devices: dict = {}
 
+    def _existing_ips(self) -> set[str]:
+        """Return the set of camera IPs already added as config entries"""
+        return {
+            entry.data["camera_ip"]
+            for entry in self._async_current_entries()
+            if "camera_ip" in entry.data
+        }
+
     @staticmethod
     def async_get_options_flow(config_entry: ConfigEntry) -> P2PCamOptionsFlow:
         """Get options flow for this handler"""
@@ -117,7 +125,12 @@ class P2PCamConfigFlow(ConfigFlow, domain=DOMAIN):
             scanner = p2pcam.LanScanner()
             devices = await self.hass.async_add_executor_job(scanner.refresh, 6)
 
-            self._discovered_devices = {dev.ip: dev.device_id for dev in devices}
+            existing = self._existing_ips()
+            self._discovered_devices = {
+                dev.ip: dev.device_id
+                for dev in devices
+                if dev.ip not in existing
+            }
 
             if not self._discovered_devices:
                 return await self.async_step_manual()
@@ -150,6 +163,13 @@ class P2PCamConfigFlow(ConfigFlow, domain=DOMAIN):
 
         if user_input is None:
             return self.async_show_form(step_id="manual", data_schema=user_form)
+
+        if user_input["camera_ip"] in self._existing_ips():
+            return self.async_show_form(
+                step_id="manual",
+                data_schema=add_suggested_values_to_schema(user_form, user_input),
+                errors={"camera_ip": "already_configured"}
+            )
 
         self._user_inputs.update(user_input)
         return self.async_create_entry(title=self._user_inputs["name"], data=self._user_inputs)
