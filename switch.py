@@ -35,6 +35,7 @@ class P2PCamSwitch(SwitchEntity, RestoreEntity):
         self._state = False
         # Custom attributes
         self._cam = camera
+        self._cam.register_availability_listener(self)
         self._attr = attr
         self._cam_id = cam_id
 
@@ -71,6 +72,11 @@ class P2PCamSwitch(SwitchEntity, RestoreEntity):
         self._state = False
         self._cam._attrs[self._attr] = False
         self.async_write_ha_state()
+
+    def schedule_update_ha_state(self) -> None:
+        """Schedule an update of the entity state based on the main camera stream"""
+        self._attr_available = self._cam._attr_available
+        super().schedule_update_ha_state()
 
     async def async_added_to_hass(self) -> None:
         """Restore previous state on startup"""

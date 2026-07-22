@@ -43,8 +43,14 @@ class P2PCamera(Camera):
         self._image_lock = threading.Lock()
         self._stop_thread = False
         self._attr_available = True
+        # Entities to notify when stream availability changes (e.g. switches)
+        self._availability_listeners: list = []
         self._thread = threading.Thread(target=self._update_image_loop, daemon=True)
         self._thread.start()
+
+    def register_availability_listener(self, entity) -> None:
+        """Register an entity to be notified when stream availability changes"""
+        self._availability_listeners.append(entity)
 
     @property
     def device_info(self) -> DeviceInfo:
@@ -102,6 +108,8 @@ class P2PCamera(Camera):
                     if not self._attr_available:
                         self._attr_available = True
                         self.schedule_update_ha_state()
+                        for listener in self._availability_listeners:
+                            listener.schedule_update_ha_state()
 
                     with self._image_lock:
                         self._latest_image = self._apply_transforms(frame)
@@ -111,6 +119,8 @@ class P2PCamera(Camera):
                     # before trying to reconnect
                     self._attr_available = False
                     self.schedule_update_ha_state()
+                    for listener in self._availability_listeners:
+                        listener.schedule_update_ha_state()
                     time.sleep(15)
             finally:
                 if self._client:
