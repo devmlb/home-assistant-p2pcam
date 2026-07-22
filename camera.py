@@ -7,6 +7,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.const import CONF_NAME
 from homeassistant.components.camera import Camera
+from io import BytesIO
+from PIL import Image, ImageDraw, ImageFont
 import p2pcam
 import logging
 import threading
@@ -26,7 +28,7 @@ class P2PCamera(Camera):
         self._device_id = cam_name
         self._attr_unique_id = cam_id
         self._attr_icon = "mdi:video"
-        # Custom attributes
+        # Image transformation attributes (toggled by switch entities)
         self._attrs = {
             ATTR_HORIZONTAL: False,
             ATTR_VERTICAL: False,
@@ -34,7 +36,7 @@ class P2PCamera(Camera):
         }
         self._cam_id = cam_id
         self._ip = camera_ip
-        
+
         self._client = None
         # Image buffer for real time streaming
         self._latest_image = None
@@ -55,6 +57,38 @@ class P2PCamera(Camera):
             model=self._device_id,
         )
 
+    def _apply_transforms(self, raw_frame: bytes) -> bytes:
+        """Apply image transformations (flip, timestamp) based on switch states"""
+
+        if not any(self._attrs.values()):
+            return raw_frame
+
+        input_frame = Image.open(BytesIO(raw_frame))
+
+        if self._attrs[ATTR_VERTICAL]:
+            input_frame = input_frame.transpose(Image.FLIP_TOP_BOTTOM)
+        if self._attrs[ATTR_HORIZONTAL]:
+            input_frame = input_frame.transpose(Image.FLIP_LEFT_RIGHT)
+
+        if self._attrs[ATTR_TIMESTAMP]:
+            draw = ImageDraw.Draw(input_frame)
+            try:
+                font = ImageFont.truetype("arial.ttf", 15)
+            except Exception:
+                font = ImageFont.load_default()
+            draw.text(
+                (10, 10),
+                time.strftime("%Y-%m-%d  %H:%M:%S"),
+                font=font,
+                fill=(255, 255, 255),
+                stroke_width=1,
+                stroke_fill=(0, 0, 0),
+            )
+
+        output_frame = BytesIO()
+        input_frame.save(output_frame, format="JPEG")
+        return output_frame.getvalue()
+
     def _update_image_loop(self) -> None:
         """Continuously retrieve the latest image from the camera"""
 
@@ -64,16 +98,16 @@ class P2PCamera(Camera):
                 for frame in self._client.stream(timeout=5):
                     if self._stop_thread:
                         break
-                    
+
                     if not self._attr_available:
                         self._attr_available = True
                         self.schedule_update_ha_state()
-                    
+
                     with self._image_lock:
-                        self._latest_image = frame
-                
+                        self._latest_image = self._apply_transforms(frame)
+
                 if not self._stop_thread:
-                    # Timeout reached, let the camera breathe a little 
+                    # Timeout reached, let the camera breathe a little
                     # before trying to reconnect
                     self._attr_available = False
                     self.schedule_update_ha_state()
@@ -111,10 +145,11 @@ async def async_setup_entry(
 ) -> None:
     """Add the camera entity from the entry"""
 
-    # Getting configuration data from hass
     data = hass.data[DOMAIN][entry.entry_id]
 
-    # Add an entity
-    async_add_entities([
-        P2PCamera(entry.entry_id, data[CONF_NAME], data[CONF_CAMERA_IP])
-    ])
+    entity = P2PCamera(entry.entry_id, data[CONF_NAME], data[CONF_CAMERA_IP])
+
+    # Store entity reference so switch platform can access it
+    data["camera_entity"] = entity
+
+    async_add_entities([entity])

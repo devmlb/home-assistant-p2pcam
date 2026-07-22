@@ -20,7 +20,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Create entities from a configEntry"""
 
     hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][entry.entry_id] = entry.data
+    hass.data[DOMAIN][entry.entry_id] = dict(entry.data)
 
     # Each platform must complete the setup.
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)

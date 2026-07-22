@@ -30,7 +30,7 @@ class P2PCamSwitch(SwitchEntity, RestoreEntity):
         self._attr_has_entity_name = True
         self._attr_name = setting_name
         self._device_id = cam_name
-        self._attr_unique_id = f"{cam_id}_{setting_name.lower().replace(" ", "_")}"
+        self._attr_unique_id = f"{cam_id}_{setting_name.lower().replace(' ', '_')}"
         self._attr_icon = setting_icon
         self._state = False
         # Custom attributes
@@ -88,14 +88,10 @@ async def async_setup_entry(
 ) -> None:
     """Add settings entities from the entry"""
 
-    # Getting the camera entity
-    camera_entity = None
-    for entity in hass.data["entity_components"]["camera"].entities:
-        if entity.unique_id == entry.entry_id:
-            camera_entity = entity
-            break
-    # Getting configuration data from hass
     data = hass.data[DOMAIN][entry.entry_id]
+
+    # Retrieve the camera entity stored by camera platform setup
+    camera_entity: P2PCamera = data["camera_entity"]
 
     # Add each setting entity
     async_add_entities([
