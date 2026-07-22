@@ -3,6 +3,7 @@
 
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult, OptionsFlow, ConfigEntry
 from homeassistant.const import CONF_NAME
+from homeassistant.helpers.selector import SelectSelector, SelectSelectorConfig, SelectOptionDict, SelectSelectorMode
 from typing import Any
 import copy
 from collections.abc import Mapping
@@ -93,21 +94,27 @@ class P2PCamConfigFlow(ConfigFlow, domain=DOMAIN):
 
         if user_input is None:
             scanner = p2pcam.LanScanner()
-            devices = await self.hass.async_add_executor_job(scanner.refresh, timeout=10)
+            devices = await self.hass.async_add_executor_job(scanner.refresh, 6)
             
-            self._discovered_devices = {
-                dev.ip: f"{dev.device_id} ({dev.ip})" 
-                for dev in devices if dev.online
-            }
+            self._discovered_devices = {dev.ip: dev.device_id for dev in devices}
 
             if not self._discovered_devices:
                 return await self.async_step_manual()
 
-            devices_with_manual = self._discovered_devices.copy()
-            devices_with_manual["manual"] = "Enter manually"
+            options = [
+                SelectOptionDict(value=dev.ip, label=dev.device_id) 
+                for dev in devices
+            ]
+            options.append(SelectOptionDict(value="manual"))
             
             schema = vol.Schema({
-                vol.Required("device"): vol.In(devices_with_manual)
+                vol.Required("device"): SelectSelector(
+                    SelectSelectorConfig(
+                        options=options,
+                        mode=SelectSelectorMode.DROPDOWN,
+                        translation_key="p2pcam_device"
+                    )
+                )
             })
             return self.async_show_form(step_id="user", data_schema=schema)
 

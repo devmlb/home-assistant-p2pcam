@@ -4,14 +4,19 @@
         "flow_title": "P2PCam configuration",
         "step": {
             "user": {
+                "title": "Select a Camera",
+                "data": {
+                    "device": "Camera"
+                }
+            },
+            "manual": {
+                "title": "Manual Configuration",
                 "data": {
                     "name": "Camera name",
-                    "host_ip": "Host IP",
                     "camera_ip": "Camera IP"
                 },
                 "data_description": {
-                    "host_ip": "The IP address of the machine running Home Assistant",
-                    "camera_ip": "The IP address of the camera"
+                    "camera_ip": "The IP address of the camera on your local network"
                 }
             }
         }
@@ -21,13 +26,18 @@
         "step": {
             "init": {
                 "data": {
-                    "host_ip": "Host IP",
                     "camera_ip": "Camera IP"
                 },
                 "data_description": {
-                    "host_ip": "The IP address of the machine running Home Assistant",
-                    "camera_ip": "The IP address of the camera"
+                    "camera_ip": "The IP address of the camera on your local network"
                 }
+            }
+        }
+    },
+    "selector": {
+        "p2pcam_device": {
+            "options": {
+                "manual": "Enter manually"
             }
         }
     }

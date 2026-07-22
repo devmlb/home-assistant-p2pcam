@@ -4,30 +4,40 @@
         "flow_title": "Configuration de P2PCam",
         "step": {
             "user": {
+                "title": "Sélectionner une caméra",
+                "data": {
+                    "device": "Caméra"
+                }
+            },
+            "manual": {
+                "title": "Configuration manuelle",
                 "data": {
                     "name": "Nom de la caméra",
-                    "host_ip": "IP de l'hôte",
                     "camera_ip": "IP de la caméra"
                 },
                 "data_description": {
-                    "host_ip": "L'adresse IP de la machine faisant fonctionner Home Assistant",
-                    "camera_ip": "L'adresse IP de la caméra"
+                    "camera_ip": "L'adresse IP de la caméra sur votre réseau local"
                 }
             }
         }
     },
     "options": {
-        "flow_title": "P2PCam configuration",
+        "flow_title": "Configuration de P2PCam",
         "step": {
             "init": {
                 "data": {
-                    "host_ip": "IP de l'hôte",
                     "camera_ip": "IP de la caméra"
                 },
                 "data_description": {
-                    "host_ip": "L'adresse IP de la machine faisant fonctionner Home Assistant",
-                    "camera_ip": "L'adresse IP de la caméra"
+                    "camera_ip": "L'adresse IP de la caméra sur votre réseau local"
                 }
+            }
+        }
+    },
+    "selector": {
+        "p2pcam_device": {
+            "options": {
+                "manual": "Saisir manuellement"
             }
         }
     }
